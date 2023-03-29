@@ -7,7 +7,7 @@ from functools import cached_property
 
 # from tic_tac_toe.logic.validators import validate_grid
 
-WINNING_PATTERNS = (    # CFG
+WINNING_PATTERNS = (  # CFG
     "???......",
     "...???...",
     "......???",
@@ -16,6 +16,19 @@ WINNING_PATTERNS = (    # CFG
     "..?..?..?",
     "?...?...?",
     "..?.?.?..",
+)
+
+WINNING_PATTERNS_54 = (
+    "?....?....?....?.........", ".....?....?....?....?....", ".?....?....?....?........",
+    "......?....?....?....?...", "..?....?....?....?.......", ".......?....?....?....?..",
+    "...?....?....?....?......", "........?....?....?....?.", "....?....?....?....?.....",
+    ".........?....?....?....?", "????.....................", ".????....................",
+    ".....????................", "......????...............", "..........????...........",
+    "...........????..........", "...............????......", "................????.....",
+    "....................????.", ".....................????", "...?...?...?...?.........",
+    "....?...?...?...?........", "........?...?...?...?....", ".........?...?...?...?...",
+    ".....?.....?.....?.....?.", "?.....?.....?.....?......", "......?.....?.....?.....?",
+    ".?.....?.....?.....?....."
 )
 
 
@@ -33,11 +46,12 @@ class Mark(str, Enum):
 @dataclass(frozen=True)
 class Grid:
     size: int = 3  # number of rows and columns
-    cells: str = " " * size**2  # CFG change for flexible size of game
+    cells: str = " " * 3 ** 2  # CFG change for flexible size of game
     winning_len: int = 3  # you could have a 5 by 5 with a winning length pf 4
 
     def __post_init__(self) -> None:
-        validate_grid(self)
+        if not re.match((r"^[\sXO]" + r"{" + str(self.size ** 2) + r"}$"), self.cells):
+            raise ValueError(f"Must contain {self.size **2} cells containing: X, O, or space")
 
     def x_count(self) -> int:
         return self.cells.count("X")
@@ -50,7 +64,6 @@ class Grid:
 
     def winning_patterns(self) -> list[str]:
         return ['']
-
 
 
 @dataclass(frozen=True)
@@ -70,11 +83,11 @@ class GameState:
 
     @cached_property
     def game_not_started(self) -> bool:
-        return self.grid.empty_count() == 9  # CFG change for flexible size of game
+        return self.grid.empty_count() == self.grid.size ** 2  # CFG change for flexible size of game
 
     @cached_property
     def game_over(self) -> bool:
-        return False
+        return self.winner or self.tie
 
     @cached_property
     def tie(self) -> bool:
@@ -99,3 +112,8 @@ class GameState:
                     ]
         return []
 
+
+def preview(gs: GameState):
+    for i in range(gs.grid.size):
+        print(gs.grid.cells[i * gs.grid.size: (i + 1) * gs.grid.size])
+    return

@@ -12,4 +12,5 @@ src/tic_tac_toe/logic/__init__.py
 src/tic_tac_toe/logic/exceptions.py
 src/tic_tac_toe/logic/minimax.py
 src/tic_tac_toe/logic/models.py
-src/tic_tac_toe/logic/validations.py
+src/tic_tac_toe/logic/validators.py
+src/tic_tac_toe/one_time/generate_winning_patterns.py

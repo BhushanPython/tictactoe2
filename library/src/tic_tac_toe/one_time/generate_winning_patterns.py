@@ -5,7 +5,7 @@ This will be run one time and winning patterns created will be store using pickl
 from __future__ import annotations
 from itertools import permutations
 from dataclasses import dataclass
-from json import dump
+from json import dump, dumps
 from os import getcwd
 
 DOT = '.'
@@ -88,15 +88,19 @@ class Grid:
 
 
 if __name__ == '__main__':
-    winning_patterns:  dict[tuple: list[str]] = {}
     g = Grid(size=3, win_len=3)
-    winning_patterns = g.get_winning_patterns()
-    f_name = getcwd() + r'/winning_patterns_33.json'
-    with open(f_name, 'w') as json_file:
-        dump(winning_patterns, json_file)
+    winning_patterns_33 = g.get_winning_patterns()
 
     g = Grid(size=5, win_len=4)
-    winning_patterns = g.get_winning_patterns()
-    f_name = getcwd() + r'/winning_patterns_54.json'
+    winning_patterns_54 = g.get_winning_patterns()
+
+    json_object_dict = {'all_patterns': [
+                            {'length': '3', 'win_length': '3', 'winning_pattern': str(winning_patterns_33)},
+                            {'length': '5', 'win_length': '4', 'winning_pattern': str(winning_patterns_54)}
+                            ]
+                        }
+
+    json_object = dumps(json_object_dict)
+    f_name = getcwd() + r'/winning_patterns.json'
     with open(f_name, 'w') as json_file:
-        dump(winning_patterns, json_file)
+        dump(json_object, json_file)
