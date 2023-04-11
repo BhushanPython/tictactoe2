@@ -6,32 +6,8 @@ import re
 from functools import cached_property
 
 # from tic_tac_toe.logic.validators import validate_grid
-from tic_tac_toe.logic.exceptions import InvalidMove
-from tic_tac_toe.logic.params import SIZE, WINNING_LEN
-
-WINNING_PATTERNS = (  # CFG
-    "???......",
-    "...???...",
-    "......???",
-    "?..?..?..",
-    ".?..?..?.",
-    "..?..?..?",
-    "?...?...?",
-    "..?.?.?..",
-)
-
-WINNING_PATTERNS_54 = (
-    "?....?....?....?.........", ".....?....?....?....?....", ".?....?....?....?........",
-    "......?....?....?....?...", "..?....?....?....?.......", ".......?....?....?....?..",
-    "...?....?....?....?......", "........?....?....?....?.", "....?....?....?....?.....",
-    ".........?....?....?....?", "????.....................", ".????....................",
-    ".....????................", "......????...............", "..........????...........",
-    "...........????..........", "...............????......", "................????.....",
-    "....................????.", ".....................????", "...?...?...?...?.........",
-    "....?...?...?...?........", "........?...?...?...?....", ".........?...?...?...?...",
-    ".....?.....?.....?.....?.", "?.....?.....?.....?......", "......?.....?.....?.....?",
-    ".?.....?.....?.....?....."
-)
+from tic_tac_toe.logic.exceptions import InvalidMove, InvalidWinningPattern
+from tic_tac_toe.logic.params import SIZE, WINNING_LEN, WINNING_PATTERNS
 
 
 class Mark(str, Enum):
@@ -64,7 +40,8 @@ class Grid:
 
     def __post_init__(self) -> None:
         if not re.match((r"^[\sXO]" + r"{" + str(self.size ** 2) + r"}$"), self.cells):
-            raise ValueError(f"Must contain {self.size **2} cells containing: X, O, or space")
+            raise ValueError(f"Must contain {self.size ** 2} cells containing: X, O, or space\n.",
+                             f"Instead found this: {self.cells} of length {len(self.cells)}")
 
     def x_count(self) -> int:
         return self.cells.count("X")
@@ -76,9 +53,10 @@ class Grid:
         return self.cells.count(" ")
 
     def winning_patterns(self) -> list[str]:
-        return ['']
-
-
+        try:
+            return WINNING_PATTERNS[(SIZE, WINNING_LEN)]
+        except KeyError:
+            raise InvalidWinningPattern(f'Winning pattern not found for size {SIZE} and winning length {WINNING_LEN}')
 
 
 @dataclass(frozen=True)
@@ -106,29 +84,35 @@ class GameState:
 
     @cached_property
     def tie(self) -> bool:
-        return self.grid.empty_count == 0 and self.winner is None
+        return self.grid.empty_count() == 0 and self.winner is None
 
     @cached_property
     def winner(self) -> str | None:
-        for pattern in WINNING_PATTERNS:
+        for pattern in self.grid.winning_patterns():
             for mark in Mark:
-                if re.match(pattern.replace("?", mark), self.grid.cells):
-                    return mark
+                try:
+                    if re.match(pattern.replace("?", mark), self.grid.cells):
+                        return mark
+                except AttributeError:
+                    print(f"Attribute error pattern is {pattern}, and type is {type(pattern)}")
         return None
 
     @cached_property
     def winning_cells(self) -> list[int]:
-        for pattern in WINNING_PATTERNS:
+        for pattern in self.grid.winning_patterns():
             for mark in Mark:
-                if re.match(pattern.replace("?", mark), self.grid.cells):
-                    return [
-                        match.start()
-                        for match in re.finditer(r"\?", pattern)
-                    ]
+                try:
+                    if re.match(pattern.replace("?", mark), self.grid.cells):
+                        return [
+                            match.start()
+                            for match in re.finditer(r"\?", pattern)
+                        ]
+                except AttributeError:
+                    print(f"Attribute error pattern is {pattern}, and type is {type(pattern)}")
         return []
 
     def make_move_to(self, place: int) -> Move:
-        if place >= self.grid.size**2 or place < 0:
+        if place >= self.grid.size ** 2 or place < 0:
             raise InvalidMove('Index of place to move to is beyond range')
         if self.grid.cells[place] != ' ':
             raise InvalidMove('Attempt to mark a non empty cell.')
@@ -137,7 +121,7 @@ class GameState:
             place=place,
             before_GameState=self,
             after_GameState=GameState(
-                Grid(size=3, cells=self.grid.cells[:place] + self.current_mark + self.grid.cells[place + 1:],
+                Grid(size=SIZE, cells=self.grid.cells[:place] + self.current_mark + self.grid.cells[place + 1:],
                      winning_len=3),
                 starting_mark=self.starting_mark
             )
@@ -163,6 +147,7 @@ def main():
     gs = GameState(grid=Grid(size=3, winning_len=3, cells='X O X O X'), starting_mark=Mark.CROSS)
     preview(gs)
     return
+
 
 if __name__ == '__main__':
     main()
