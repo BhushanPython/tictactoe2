@@ -15,7 +15,7 @@ class Player(metaclass=ABCMeta):
     def make_move(self, game_state: GameState) -> GameState:
         if self.mark == game_state.current_mark:
             if move := self.get_move(game_state):
-                return move.after_GameState
+                return move.after_gamestate
             raise InvalidMove("Bad move or no more moves possible")
         else:
             raise InvalidMove(f"Its not player {self.name} 's turn")
@@ -45,6 +45,30 @@ class RandomComputerPlayer(ComputerPlayer):
             return choice(game_state.possible_moves)
         except IndexError:  # takes care of empty list - when no more moves are possible
             return None
+
+
+class MiniMaxPlayer(ComputerPlayer):
+    def get_computer_move(self, game_state: GameState) -> Move | None:
+        return None
+
+
+    def minimax(self, game_state: GameState) -> Move | None:
+        possible_moves = game_state.possible_moves
+        for move in possible_moves:
+            if move.after_gamestate.winner in [self.mark, self.mark.other()]:
+                # if winning or opponent winning in a move choose that
+                return Move
+            else:
+
+
+
+
+
+
+
+
+
+
 
 
 

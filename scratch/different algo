@@ -1,0 +1,146 @@
+'
+XOX
+OXO
+
+   '
+
+
+'
+XOX
+OXO
+X  ' +1
+
+
+'
+XOX
+OXO
+ X ' 0 
+
+
+{
+'
+XOX
+OXO
+OXX': +1, 
+
+
+
+'
+XOX
+OXO
+OX ': 0, 
+
+
+'
+XOX
+OXO
+XXO': 0, 
+
+
+
+XOX
+OXO
+ XO
+
+
+XOX
+OXO
+ X 
+
+
+Depth: 6 over 7 starting
+XOX
+OXO
+
+Moves for Depth 7
+A.
+
+XOX   -> score += 1
+OXO
+X
+
+B.
+
+XOX
+OXO - not over
+ X 
+
+C.
+
+XOX
+OXO -> score += 1
+  X
+
+
+B.1
+
+XOX - not over
+OXO
+OX 
+
+B.2
+
+XOX
+OXO - not over
+ XO
+
+
+B1.1
+
+XOX  -> score += 1
+OXO 
+OXX 
+
+B2.1
+XOX
+OXO   -> score += 1
+XXO
+
+
+A : score += 1
+C : score += 1
+B : score += 2!
+
+
+Whereas B is not the best response!
+
+That means: for every depth
+a) List the moves
+b) if there is at least one move that is winning - close out all other paths i.e. no further recursion
+c) 
+
+
+Score
+'tracks the score for every depth'
+
+total depth = 0 to size ** 2 minus 1
+
+from max depth to depth 0:
+for each depth:
+   permute all possible position strings where X, O are equal or count_x - count_o is 1
+   for each permute:
+   if there is a win/ loss/ tie:
+      1. remove all moves 
+      2. put these strings in a -ve list
+   for the rest:
+      list possible next move (could be X or O)
+         if even one of these moves has a win/loss/tie: (win/loss always from X pov)
+            put all other moves in -ve list
+            for each remaining move:
+               check 'hit' in db
+               if found: 
+                  score += 1 for win, += -1 for loss
+               if not found:
+                  create a new entry in database 
+                  score = 1 for win, = -1 for loss
+         else (i.e. not a single move is a winning move):
+            recurse back to list all moves
+## back to next depth iteration
+
+
+
+
+
+
+
+

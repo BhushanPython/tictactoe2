@@ -28,8 +28,8 @@ class Mark(str, Enum):
 class Move:
     mark: Mark
     place: int
-    before_GameState: GameState
-    after_GameState: GameState
+    before_gamestate: GameState
+    after_gamestate: GameState
 
 
 @dataclass(frozen=True)
@@ -119,8 +119,8 @@ class GameState:
         return Move(
             mark=self.current_mark,
             place=place,
-            before_GameState=self,
-            after_GameState=GameState(
+            before_gamestate=self,
+            after_gamestate=GameState(
                 Grid(size=SIZE, cells=self.grid.cells[:place] + self.current_mark + self.grid.cells[place + 1:],
                      winning_len=3),
                 starting_mark=self.starting_mark
