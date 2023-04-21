@@ -2,6 +2,14 @@
 This one time program builds the minimax point values for various positions and stores in file. In the players model
 the minimax player simply reads the scores and determines the best move.
 Scores are stored for two scenarios 1. grid, winning_len = 3,3 and 2. grid, winning_len = 5,4
+
+modifications:
+1. using stored pickle sequence_db.data to load sequences and their win loss tie status
+2. for every iteration if there are any wins then those are chosen in best moves and the branch is closed for any more
+iteration
+3. Next all losing branches are also closed for further iteration
+4. With Tie the branch naturally reaches its end
+5. Other wise the moves keep accumulating scores
 """
 from itertools import permutations
 import re
